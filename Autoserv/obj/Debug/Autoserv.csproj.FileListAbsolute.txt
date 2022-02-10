@@ -1,0 +1,15 @@
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\Autoserv.exe.config
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\Autoserv.exe
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\Autoserv.pdb
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.csproj.AssemblyReference.cache
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.MainForm.resources
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.Properties.Resources.resources
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.csproj.GenerateResource.cache
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.csproj.CoreCompileInputs.cache
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.exe
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.pdb
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.dll
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.xml
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.csproj.CopyComplete
