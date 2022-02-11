@@ -58,6 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddClientForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddClientForm.Designer.cs">
+      <DependentUpon>AddClientForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Client.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -66,6 +72,12 @@
     </Compile>
     <Compile Include="DocumentByService.cs">
       <DependentUpon>Model.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EditClienForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditClienForm.Designer.cs">
+      <DependentUpon>EditClienForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gender.cs">
       <DependentUpon>Model.tt</DependentUpon>
@@ -105,6 +117,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Refs.cs" />
     <Compile Include="Service.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
@@ -120,6 +133,14 @@
     <Compile Include="TagOfClient.cs">
       <DependentUpon>Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="Tags.cs" />
+    <Compile Include="Utils.cs" />
+    <EmbeddedResource Include="AddClientForm.resx">
+      <DependentUpon>AddClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditClienForm.resx">
+      <DependentUpon>EditClienForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

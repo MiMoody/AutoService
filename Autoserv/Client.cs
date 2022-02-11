@@ -25,7 +25,7 @@ namespace Autoserv
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Patronymic { get; set; }
-        public Nullable<System.DateTime> Birthday { get; set; }
+        public System.DateTime Birthday { get; set; }
         public System.DateTime RegistrationDate { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }

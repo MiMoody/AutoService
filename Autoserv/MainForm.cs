@@ -16,25 +16,41 @@ namespace Autoserv
         int CurrentIndexPage = 1;
         int PageSize;
         AutoservEntities db = new AutoservEntities();
+        string SearchStr = null;
 
         public MainForm()
         {
             InitializeComponent();
+            Refs.mainForm = this;
         }
 
         private void CalculateTotalPages()
         {
             int RowCount = 0;
+            List<Client> list = new List<Client>();
             if (CmbGenderFilter.SelectedIndex == 0)
-                RowCount = Convert.ToInt32(db.Client.ToList().Count());
+                list = db.Client.ToList();
             else if (CmbGenderFilter.SelectedIndex == 1)
-                RowCount = Convert.ToInt32(db.Client.ToList().Where(p => p.GenderCode == "м").Count());
-            else if (CmbGenderFilter.SelectedIndex == 2)
-                RowCount = Convert.ToInt32(db.Client.ToList().Where(p => p.GenderCode == "ж").Count());
+                list = db.Client.Where(p => p.GenderCode == "м").ToList();
 
-            TotalPages = RowCount / PageSize;
-            if (RowCount % PageSize > 0)
-                TotalPages += 1;
+            else if (CmbGenderFilter.SelectedIndex == 2)
+                list = db.Client.Where(p => p.GenderCode == "ж").ToList();
+
+            if (SearchStr != null)
+                list = SearchList(list);
+
+            if (CheckBirthday.Checked)
+                list = ShowCurrentMonthBirthday(list);
+
+            RowCount = Convert.ToInt32(list.Count()); ;
+            if (PageSize != 0)
+            {
+                TotalPages = RowCount / PageSize;
+                if (RowCount % PageSize > 0)
+                    TotalPages += 1;
+            }
+            else
+                TotalPages = 0;
         }
 
         public string PrintLabText(bool check, int page = 1)
@@ -45,25 +61,36 @@ namespace Autoserv
                 
                 if (CmbGenderFilter.SelectedIndex == 0)
                 {
-                    var before = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).Count();
-                    var NoProviders = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    var after = db.Client.Where(p => !NoProviders.Contains(p.ID)).Take(PageSize).Count();
-                    return (before + after).ToString() + " из " + db.Client.Count().ToString();
+                    if (CheckBirthday.Checked)
+                    {
+                        var before = db.Client.Where(p=>p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).Count();
+                        var NoProviders = db.Client.Where(p => p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        var after = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).Count();
+                        return (before + after).ToString() + " из " + db.Client.Count().ToString();
+                    }
+                    else
+                    {
+                        var before = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).Count();
+                        var NoProviders = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        var after = db.Client.Where(p => !NoProviders.Contains(p.ID)).Take(PageSize).Count();
+                        return (before + after).ToString() + " из " + db.Client.Count().ToString();
+                    }
+                    
                 }
                 else if (CmbGenderFilter.SelectedIndex == 1)
                 {
-                    var before = db.Client.Where(p => p.GenderCode == "м").Select(p => p.ID).Take(PreviousPageOffSet).Count();
-                    var NoProviders = db.Client.Where(p => p.GenderCode == "м").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    var after = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode =="м").Take(PageSize).Count();
-                    return (before + after).ToString() + " из " + db.Client.Where(p => p.GenderCode == "м").Count().ToString();
+                    var before = db.Client.Where(p => p.GenderCode == "м" && p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).Count();
+                    var NoProviders = db.Client.Where(p => p.GenderCode == "м" && p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                    var after = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode =="м" && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).Count();
+                    return (before + after).ToString() + " из " + db.Client.Where(p => p.GenderCode == "м" && p.Birthday.Month == DateTime.Now.Month).Count().ToString();
                 }
 
                 else if (CmbGenderFilter.SelectedIndex == 2)
                 {
-                    var before = db.Client.Where(p => p.GenderCode == "ж").Select(p => p.ID).Take(PreviousPageOffSet).Count();
-                    var NoProviders = db.Client.Where(p => p.GenderCode == "ж").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    var after = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "ж").Take(PageSize).Count();
-                    return (before + after).ToString() + " из " + db.Client.Where(p => p.GenderCode == "ж").Count().ToString();
+                    var before = db.Client.Where(p => p.GenderCode == "ж" && p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).Count();
+                    var NoProviders = db.Client.Where(p => p.GenderCode == "ж" && p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                    var after = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "ж" && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).Count();
+                    return (before + after).ToString() + " из " + db.Client.Where(p => p.GenderCode == "ж" && p.Birthday.Month == DateTime.Now.Month).Count().ToString();
                 }
 
                 return "";
@@ -71,16 +98,45 @@ namespace Autoserv
             else
             {
                 if (CmbGenderFilter.SelectedIndex == 0)
-                    return db.Client.OrderBy(p => p.ID).Take(PageSize).Count().ToString() + " из " + db.Client.Count().ToString();
+                {
+                    if (CheckBirthday.Checked)
+                        return db.Client.OrderBy(p => p.ID).Where(p => p.Birthday.Month == DateTime.Now.Month).Take(PageSize).Count().ToString() + " из " + db.Client.Count().ToString();
+                    else
+                        return db.Client.OrderBy(p => p.ID).Take(PageSize).Count().ToString() + " из " + db.Client.Count().ToString();
+                }
                 else if (CmbGenderFilter.SelectedIndex == 1)
-                    return db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "м").Take(PageSize).Count().ToString() + " из " + db.Client.Where(p => p.GenderCode == "м").Count().ToString();
+                {
+                    if (CheckBirthday.Checked)
+                        return db.Client.OrderBy(p => p.ID).Where(p => p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "м").Take(PageSize).Count().ToString() + " из " + db.Client.Count().ToString();
+                    else
+                        return db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "м").Take(PageSize).Count().ToString() + " из " + db.Client.Where(p => p.GenderCode == "м").Count().ToString();
+                }
                 else if (CmbGenderFilter.SelectedIndex == 2)
-                    return db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "ж").Take(PageSize).Count().ToString() + " из " + db.Client.Where(p => p.GenderCode == "ж").Count().ToString();
+                {
+                    if (CheckBirthday.Checked)
+                        return db.Client.OrderBy(p => p.ID).Where(p => p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "ж").Take(PageSize).Count().ToString() + " из " + db.Client.Count().ToString();
+                    else
+                        return db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "ж").Take(PageSize).Count().ToString() + " из " + db.Client.Where(p => p.GenderCode == "ж").Count().ToString();
+                }
                 return "";
             }
 
                 
         }
+
+        public List <Client> SearchList( List <Client> list)
+        {
+            List<Client> new_list = new List<Client>();
+            foreach (Client cl in list)
+            {
+                if (cl.FirstName.Contains(SearchStr) ||cl.LastName.Contains(SearchStr) || cl.Patronymic.Contains(SearchStr) || cl.Phone.Contains(SearchStr) || cl.Email.Contains(SearchStr))
+                {
+                    new_list.Add(cl);
+                }
+            }
+            return new_list;
+        }
+
         private List<Client> GetCurrentRecords(int page)
         {
             List<Client> list = new List<Client>();
@@ -88,11 +144,28 @@ namespace Autoserv
             if (page == 1)
             {
                 if (CmbGenderFilter.SelectedIndex == 0)
-                    list = db.Client.OrderBy(p => p.ID).Take(PageSize).ToList();
+                {
+                    if (CheckBirthday.Checked)
+                        list = db.Client.OrderBy(p => p.ID).Where(p => p.Birthday.Month == DateTime.Now.Month).Take(PageSize).ToList();
+                    else
+                        list = db.Client.OrderBy(p => p.ID).Take(PageSize).ToList();
+                }
                 else if (CmbGenderFilter.SelectedIndex == 1)
-                    list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "м").Take(PageSize).ToList();
+                {
+                    if (CheckBirthday.Checked) 
+                        list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "м" && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).ToList();
+                    else
+                        list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "м").Take(PageSize).ToList();
+                }
+                    
+                    
                 else if (CmbGenderFilter.SelectedIndex == 2)
-                    list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "ж").Take(PageSize).ToList();
+                {
+                    if (CheckBirthday.Checked)
+                        list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "ж" && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).ToList();
+                    else
+                        list = db.Client.OrderBy(p => p.ID).Where(p => p.GenderCode == "ж").Take(PageSize).ToList();
+                }
                 PageLab.Text = PrintLabText(false, page);
             }
             else
@@ -101,25 +174,107 @@ namespace Autoserv
                 int[] NoProviders = null;
                 if (CmbGenderFilter.SelectedIndex == 0)
                 {
-                    NoProviders = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    list = db.Client.Where(p => !NoProviders.Contains(p.ID)).Take(PageSize).ToList();
+                    if (CheckBirthday.Checked)
+                    {
+                        NoProviders = db.Client.Where(p=>p.Birthday.Month == DateTime.Now.Month).Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.Birthday.Month == DateTime.Now.Month).Take(PageSize).ToList();
+                    }
+                    else
+                    {
+                        NoProviders = db.Client.Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID)).Take(PageSize).ToList();
+                    }
+
                 }
                 else if (CmbGenderFilter.SelectedIndex == 1)
                 {
-                    NoProviders = db.Client.Where(p => p.GenderCode == "м").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "м").Take(PageSize).ToList();
+                    if (CheckBirthday.Checked)
+                    {
+                        NoProviders = db.Client.Where(p => p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "м").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "м").Take(PageSize).ToList();
+                    }
+                    else
+                    {
+                        NoProviders = db.Client.Where(p => p.GenderCode == "м").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "м").Take(PageSize).ToList();
+                    }
+                   
                 }
                     
                 else if (CmbGenderFilter.SelectedIndex == 2)
                 {
-                    NoProviders = db.Client.Where(p => p.GenderCode == "ж").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
-                    list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "ж").Take(PageSize).ToList();
+                    if (CheckBirthday.Checked)
+                    {
+                        NoProviders = db.Client.Where(p => p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "ж").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.Birthday.Month == DateTime.Now.Month && p.GenderCode == "ж").Take(PageSize).ToList();
+                    }
+                    else
+                    {
+                        NoProviders = db.Client.Where(p => p.GenderCode == "ж").Select(p => p.ID).Take(PreviousPageOffSet).ToArray();
+                        list = db.Client.Where(p => !NoProviders.Contains(p.ID) && p.GenderCode == "ж").Take(PageSize).ToList();
+                    }
                 }
-                   
+
                 PageLab.Text = PrintLabText(true, page);
             }
+            if (SearchStr != null)
+                list = SearchList(list);
+            if (CheckBirthday.Checked)
+                list = ShowCurrentMonthBirthday(list);
+
+            list = SortTable(list);
 
             return list;
+        }
+
+        public void RemoveClient()
+        {
+            if (ClientTable.SelectedRows.Count > 0)
+            {
+                int client_id = Convert.ToInt32(ClientTable.SelectedRows[0].Cells[0].Value);
+                if(!db.ClientService.Any(p => p.ClientID == client_id))
+                {
+                    string message = "Вы уверены, что хотите удалить клиента?";
+                    string caption = "";
+                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                    DialogResult result;
+
+                    // Displays the MessageBox.
+                    result = MessageBox.Show(message, caption, buttons);
+                    if (result == DialogResult.Yes)
+                    {
+                        Client client = db.Client.Where(p => p.ID == client_id).FirstOrDefault();
+                        db.Client.Remove(client);
+                        db.SaveChanges();
+                        MessageBox.Show("Клиент успешно удален!");
+                        UpdateTable();
+                    }
+
+                }else MessageBox.Show("Вы не можете удалить этого клиента, так как он связан с таблицей ClientService!");
+            }
+            else MessageBox.Show("Вы не выбрали клиента!");
+        }
+
+        public List<Client> ShowCurrentMonthBirthday(List<Client> list)
+        {
+            List<Client> new_list = new List<Client>();
+            foreach (Client cl in list)
+                if (cl.Birthday.Date.Month == DateTime.Now.Month) new_list.Add(cl);
+            return new_list;
+        }
+
+        public List<Client> SortTable(List<Client> list)
+        {
+            List<Client> new_list = new List<Client>();
+
+            if (CmbSort.SelectedIndex == 0) return list;
+            if (CmbSort.SelectedIndex == 1)
+                new_list = list.OrderBy(x => x.LastName).ToList();
+            if(CmbSort.SelectedIndex == 2)
+                new_list = list.OrderByDescending(x => x.Quantity).ToList();
+            if (CmbSort.SelectedIndex == 3)
+                new_list = list.OrderBy(x => x.LastDate).ToList();
+            return new_list;
         }
 
         public void UpdateTable()
@@ -128,6 +283,8 @@ namespace Autoserv
             CmbPagesCount.SelectedIndex = 0;
             if (CmbGenderFilter.SelectedIndex == -1)
             CmbGenderFilter.SelectedIndex = 0;
+            if (CmbSort.SelectedIndex == -1)
+                CmbSort.SelectedIndex = 0;
             List<Client> clients = new List<Client>();
             string check = null;
             if (CmbGenderFilter.SelectedIndex == 0) check = "Все";
@@ -145,6 +302,14 @@ namespace Autoserv
                     if (client.ID == tagOfClient.ClientID) client.Tags += tagOfClient.Tag.Title + ";";
                 clients.Add(client);
             }
+            if (SearchStr != null)
+                clients = SearchList(clients);
+
+            clients = SortTable(clients);
+
+            if (CheckBirthday.Checked)
+                clients = ShowCurrentMonthBirthday(clients);
+
             PageSize = Convert.ToInt32(clients.Count());
             CalculateTotalPages();
             PageLab.Text = PrintLabText(false,1);
@@ -176,6 +341,7 @@ namespace Autoserv
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            
             UpdateTable();
         }
 
@@ -220,6 +386,57 @@ namespace Autoserv
                 CalculateTotalPages();
                 ClientTable.DataSource = GetCurrentRecords(1);
             }
+        }
+
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
+        {
+            SearchStr = TxtSearch.Text;
+
+            if (CmbGenderFilter.SelectedIndex == 0 || CmbPagesCount.SelectedIndex == 0) UpdateTable();
+            else
+            {
+                PageSize = Convert.ToInt32(CmbPagesCount.SelectedItem);
+                CalculateTotalPages();
+                ClientTable.DataSource = GetCurrentRecords(1);
+            }
+
+        }
+
+        private void CmbSortDate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CmbGenderFilter.SelectedIndex == 0 || CmbPagesCount.SelectedIndex == 0) UpdateTable();
+            else
+            {
+                PageSize = Convert.ToInt32(CmbPagesCount.SelectedItem);
+                CalculateTotalPages();
+                ClientTable.DataSource = GetCurrentRecords(1);
+            }
+        }
+
+        private void CheckBirthday_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CmbGenderFilter.SelectedIndex == 0 || CmbPagesCount.SelectedIndex == 0) UpdateTable();
+            else
+            {
+                PageSize = Convert.ToInt32(CmbPagesCount.SelectedItem);
+                CalculateTotalPages();
+                ClientTable.DataSource = GetCurrentRecords(1);
+            }
+        }
+
+        private void DelClient_Click(object sender, EventArgs e)
+        {
+            RemoveClient();
+        }
+
+        private void AddBtn_Click(object sender, EventArgs e)
+        {
+            new AddClientForm().ShowDialog();
+        }
+
+        private void BtnChange_Click(object sender, EventArgs e)
+        {
+            new EditClienForm(Convert.ToInt32(ClientTable.SelectedRows[0].Cells[0].Value)).ShowDialog();
         }
     }
 }

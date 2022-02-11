@@ -13,3 +13,5 @@ C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное 
 C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.xml
 C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\bin\Debug\EntityFramework.SqlServer.xml
 C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.csproj.CopyComplete
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.AddClientForm.resources
+C:\Users\temch\Desktop\Шарага\4 курс\Инструментальное программирование\Autoserv\Autoserv\obj\Debug\Autoserv.EditClienForm.resources
